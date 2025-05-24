@@ -2735,7 +2735,7 @@ class MiscTest(unittest.TestCase):
 
         os.makedirs(outside_tree_dir)
         try:
-            arc.open().extractall(path=tempdir, filter='tar')
+            arc.open(debug=3).extractall(path=tempdir, filter='tar')
         finally:
             os_helper.rmtree(outside_tree_dir)
             os_helper.rmtree(tempdir)

@@ -2402,6 +2402,8 @@ class TarFile(object):
                 targetstat = os.stat(dirpath, follow_symlinks=False)
                 directories.append((tarinfo, dirpath, targetstat.st_ino,
                                     targetstat.st_dev))
+                self._dbg(1, "Extracted directory: %r %r %r %r" % (tarinfo, dirpath, targetstat.st_ino,
+                                    targetstat.st_dev))
 
         # Reverse sort directories.
         directories.sort(key=lambda a: a[0].name, reverse=True)
@@ -2409,6 +2411,7 @@ class TarFile(object):
         # Set correct owner, mtime and filemode on directories.
         for tarinfo, dirpath, original_ino, original_dev in directories:
             dirstat = os.stat(dirpath, follow_symlinks=False)
+            self._dbg(1, "Updating metadata for dir %s: %r" % (dirpath, dirstat))
             if (dirstat.st_ino != original_ino or
                 dirstat.st_dev != original_dev):
                 self._dbg(1, "tarfile: Directory renamed before its " \
