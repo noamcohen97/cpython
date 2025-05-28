@@ -251,6 +251,18 @@ lltrace_resume_frame(_PyInterpreterFrame *frame)
     PyErr_SetRaisedException(exc);
 }
 
+int get_lltrace_level_env(void) {
+    char *python_lltrace = Py_GETENV("PYTHON_LLTRACE");
+    if (python_lltrace != NULL) {
+        char *endptr = python_lltrace;
+        int lltrace = strtol(python_lltrace, &endptr, 10);
+        if (*endptr == '\0' && lltrace > 0) {
+            return lltrace;
+        }
+    }
+    return 0;
+}
+
 static int
 maybe_lltrace_resume_frame(_PyInterpreterFrame *frame, PyObject *globals)
 {
@@ -267,10 +279,7 @@ maybe_lltrace_resume_frame(_PyInterpreterFrame *frame, PyObject *globals)
     int lltrace = r * 5;  // Levels 1-4 only trace uops
     if (!lltrace) {
         // Can also be controlled by environment variable
-        char *python_lltrace = Py_GETENV("PYTHON_LLTRACE");
-        if (python_lltrace != NULL && *python_lltrace >= '0') {
-            lltrace = *python_lltrace - '0';  // TODO: Parse an int and all that
-        }
+        lltrace = get_lltrace_level_env();
     }
     if (lltrace >= 5) {
         lltrace_resume_frame(frame);
