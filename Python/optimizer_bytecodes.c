@@ -1173,6 +1173,18 @@ dummy_func(void) {
         res = sym_new_type(ctx, &PyLong_Type);
     }
 
+    op(_IS_NONE, (value -- b)) {
+        PyObject *const_value = sym_get_const(ctx, value);
+        if (const_value) {
+            PyObject *out = PyBool_FromLong(Py_IsNone(const_value));
+            REPLACE_OP(this_instr, _POP_TOP_LOAD_CONST_INLINE_BORROW, 0, (uintptr_t)out);
+            b = sym_new_const(ctx, out);
+        }
+        else {
+            b = sym_new_type(ctx, &PyBool_Type);
+        }
+    }
+
     op(_GET_LEN, (obj -- obj, len)) {
         int tuple_length = sym_tuple_length(obj);
         if (tuple_length == -1) {

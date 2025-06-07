@@ -1489,8 +1489,18 @@
         /* _POP_JUMP_IF_TRUE is not a viable micro-op for tier 2 */
 
         case _IS_NONE: {
+            JitOptSymbol *value;
             JitOptSymbol *b;
-            b = sym_new_not_null(ctx);
+            value = stack_pointer[-1];
+            PyObject *const_value = sym_get_const(ctx, value);
+            if (const_value) {
+                PyObject *out = PyBool_FromLong(Py_IsNone(const_value));
+                REPLACE_OP(this_instr, _POP_TOP_LOAD_CONST_INLINE_BORROW, 0, (uintptr_t)out);
+                b = sym_new_const(ctx, out);
+            }
+            else {
+                b = sym_new_type(ctx, &PyBool_Type);
+            }
             stack_pointer[-1] = b;
             break;
         }
